@@ -1,14 +1,14 @@
 # FaceFusion Enhanced
 
-A public fork of [FaceFusion 3.9.2](https://github.com/facefusion/facefusion) with an updated workspace, saved settings, export checks, clearer render feedback, and Apple Silicon inference fixes. The shared interface runs locally in a browser on macOS and Windows. An optional native app wrapper is available on macOS.
+A public fork of [FaceFusion 3.9.2](https://github.com/facefusion/facefusion) with an updated workspace, saved settings, export checks, clearer render feedback, and Apple Silicon inference fixes. The shared interface runs locally in a browser on macOS and Windows. An optional native app wrapper is available on macOS. This fork retains FaceFusion’s upstream content checks.
 
 ## Install on macOS
 
 Install Git, Python 3.12 and FFmpeg, and make sure those commands are available in Terminal. Then run:
 
 ```sh
-git clone https://github.com/mahidhar347/facefusion-macos.git
-cd facefusion-macos
+git clone https://github.com/mahidhar347/facefusion-uncensored.git
+cd facefusion-uncensored
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -33,8 +33,8 @@ Leave the built app in the checkout beside `facefusion.py` and `.venv`. It start
 Install Git, Python 3.12 and FFmpeg and add them to PATH. Open **Command Prompt** and run:
 
 ```bat
-git clone https://github.com/mahidhar347/facefusion-macos.git
-cd facefusion-macos
+git clone https://github.com/mahidhar347/facefusion-uncensored.git
+cd facefusion-uncensored
 py -3.12 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 windows\start-facefusion.cmd --execution-providers cpu
@@ -61,7 +61,7 @@ Use **Saved settings** to store processor and output preferences. The app downlo
 
 ## Contribute
 
-Fork the repository, make a branch, and open a pull request on this fork. For a small documentation change, use GitHub's pencil icon. Include your operating system, execution provider, and what you tested. Keep media, models, logs and local settings out of commits. [Contributors](https://github.com/mahidhar347/facefusion-macos/graphs/contributors)
+Fork the repository, make a branch, and open a pull request on this fork. For a small documentation change, use GitHub's pencil icon. Include your operating system, execution provider, and what you tested. Keep media, models, logs and local settings out of commits. [Contributors](https://github.com/mahidhar347/facefusion-uncensored/graphs/contributors)
 
 ## License and attribution
 
