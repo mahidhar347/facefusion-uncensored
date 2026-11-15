@@ -67,7 +67,8 @@ def update_face_swapper_model(face_swapper_model : FaceSwapperModel) -> Tuple[gr
 
 	if face_swapper_module.pre_check():
 		face_swapper_pixel_boost_dropdown_choices = face_swapper_choices.face_swapper_set.get(state_manager.get_item('face_swapper_model'))
-		state_manager.set_item('face_swapper_pixel_boost', get_first(face_swapper_pixel_boost_dropdown_choices))
+		if state_manager.get_item('face_swapper_pixel_boost') not in face_swapper_pixel_boost_dropdown_choices:
+			state_manager.set_item('face_swapper_pixel_boost', get_first(face_swapper_pixel_boost_dropdown_choices))
 		return gradio.Dropdown(value = state_manager.get_item('face_swapper_model')), gradio.Dropdown(value = state_manager.get_item('face_swapper_pixel_boost'), choices = face_swapper_pixel_boost_dropdown_choices), gradio.Slider(visible = has_face_swapper_weight())
 	return gradio.Dropdown(), gradio.Dropdown(), gradio.Slider()
 
@@ -80,5 +81,5 @@ def update_face_swapper_weight(face_swapper_weight : FaceSwapperWeight) -> None:
 	state_manager.set_item('face_swapper_weight', face_swapper_weight)
 
 
-def has_face_swapper_weight() -> bool:
-	return state_manager.get_item('face_swapper_model') in [ 'ghost_1_256', 'ghost_2_256', 'ghost_3_256', 'hififace_unofficial_256', 'hyperswap_1a_256', 'hyperswap_1b_256', 'hyperswap_1c_256', 'inswapper_128', 'inswapper_128_fp16', 'simswap_256', 'simswap_unofficial_512' ]
+def has_face_swapper_weight(model : Optional[FaceSwapperModel] = None) -> bool:
+	return (model or state_manager.get_item('face_swapper_model')) in [ 'ghost_1_256', 'ghost_2_256', 'ghost_3_256', 'hififace_unofficial_256', 'hyperswap_1a_256', 'hyperswap_1b_256', 'hyperswap_1c_256', 'inswapper_128', 'inswapper_128_fp16', 'simswap_256', 'simswap_unofficial_512' ]

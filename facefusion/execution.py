@@ -94,7 +94,7 @@ def create_inference_providers(execution_device_id : int, execution_providers : 
 			if is_directory(cache_path) or create_directory(cache_path):
 				inference_option_set.update(
 				{
-					'ModelCacheDirectory': cache_path
+					'ModelCacheDirectory': os.path.abspath(cache_path)
 				})
 			inference_providers.append((facefusion.choices.execution_provider_set.get(execution_provider), inference_option_set))
 

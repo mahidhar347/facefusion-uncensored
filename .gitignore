@@ -5,3 +5,13 @@ __pycache__
 .idea
 .jobs
 .vscode
+
+.venv/
+.uv-cache/
+.uv-python/
+.app-profile/
+.DS_Store
+launcher.log
+results/
+FaceFusion.app/
+.facefusion-build.*/

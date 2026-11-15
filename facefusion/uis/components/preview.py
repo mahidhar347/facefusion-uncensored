@@ -18,7 +18,7 @@ from facefusion.types import AudioFrame, Face, Mask, VisionFrame
 from facefusion.uis import choices as uis_choices
 from facefusion.uis.core import get_ui_component, get_ui_components, register_ui_component
 from facefusion.uis.types import ComponentOptions, PreviewMode
-from facefusion.vision import detect_frame_orientation, extract_vision_mask, fit_cover_frame, is_vision_frame, merge_vision_mask, obscure_frame, read_static_image, read_static_images, read_video_frame, restrict_frame, select_video_frames, unpack_resolution
+from facefusion.vision import detect_frame_orientation, extract_vision_mask, fit_cover_frame, is_vision_frame, merge_vision_mask, read_static_image, read_static_images, read_video_frame, restrict_frame, select_video_frames, unpack_resolution
 
 PREVIEW_IMAGE : Optional[gradio.Image] = None
 
@@ -226,20 +226,13 @@ def process_preview_frame(reference_vision_frame : VisionFrame, source_vision_fr
 	target_vision_frame = merge_vision_mask(target_vision_frame, temp_vision_mask)
 	target_vision_frames = [ restrict_frame(vision_frame, unpack_resolution(preview_resolution))[:, :, :3] for vision_frame in target_vision_frames ]
 	temp_vision_frame = target_vision_frame.copy()
-
 	if analyse_frame(target_vision_frame[:, :, :3]):
+		blocked_vision_frame = create_blocked_preview_frame(target_vision_frame)
 		if preview_mode == 'frame-by-frame':
-			temp_vision_frame = obscure_frame(temp_vision_frame[:, :, :3])
-			return numpy.hstack((temp_vision_frame, temp_vision_frame))
-
+			return numpy.hstack((target_vision_frame, blocked_vision_frame))
 		if preview_mode == 'face-by-face':
-			target_crop_vision_frame, output_crop_vision_frame = create_face_by_face(reference_vision_frame, source_vision_frames, target_vision_frame[:, :, :3], temp_vision_frame[:, :, :3])
-			target_crop_vision_frame = obscure_frame(target_crop_vision_frame)
-			output_crop_vision_frame = obscure_frame(output_crop_vision_frame)
-			return numpy.hstack((target_crop_vision_frame, output_crop_vision_frame))
-
-		temp_vision_frame = obscure_frame(temp_vision_frame)
-		return temp_vision_frame
+			return numpy.hstack((blocked_vision_frame, blocked_vision_frame))
+		return blocked_vision_frame
 
 	for processor_module in get_processors_modules(state_manager.get_item('processors')):
 		logger.disable()
@@ -267,6 +260,21 @@ def process_preview_frame(reference_vision_frame : VisionFrame, source_vision_fr
 		return numpy.hstack((target_crop_vision_frame, output_crop_vision_frame))
 
 	return temp_vision_frame
+
+
+def create_blocked_preview_frame(vision_frame : VisionFrame) -> VisionFrame:
+	blocked_frame = numpy.full((*vision_frame.shape[:2], 3), 48, dtype = vision_frame.dtype)
+	font = cv2.FONT_HERSHEY_SIMPLEX
+	font_scale = max(0.45, min(blocked_frame.shape[:2]) / 850)
+	line_height = int(42 * font_scale)
+	lines = [ 'Preview unavailable', 'Target blocked by the content check' ]
+	start_y = blocked_frame.shape[0] // 2 - line_height // 2
+	for index, line in enumerate(lines):
+		text_width = cv2.getTextSize(line, font, font_scale, 2)[0][0]
+		cv2.putText(blocked_frame, line, (max(12, (blocked_frame.shape[1] - text_width) // 2), start_y + index * line_height), font, font_scale, (240, 240, 240), 2, cv2.LINE_AA)
+	if vision_frame.shape[2] == 4:
+		return numpy.dstack((blocked_frame, numpy.full(vision_frame.shape[:2], 255, dtype = vision_frame.dtype)))
+	return blocked_frame
 
 
 def create_face_by_face(reference_vision_frame : VisionFrame, source_vision_frames : List[VisionFrame], target_vision_frame : VisionFrame, temp_vision_frame : VisionFrame) -> Tuple[VisionFrame, VisionFrame]:

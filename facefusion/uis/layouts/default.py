@@ -1,6 +1,7 @@
 import gradio
 
 from facefusion import state_manager
+from facefusion.uis.components import settings_guide
 from facefusion.uis.components import about, age_modifier_options, background_remover_options, deep_swapper_options, download, execution, execution_thread_count, expression_restorer_options, face_debugger_options, face_detector, face_editor_options, face_enhancer_options, face_landmarker, face_masker, face_selector, face_swapper_options, face_tracker, frame_colorizer_options, frame_enhancer_options, instant_runner, job_manager, job_runner, lip_syncer_options, memory, output, output_options, preview, preview_options, processors, source, target, temp_frame, terminal, trim_frame, ui_workflow, voice_extractor, workflow
 
 
@@ -10,64 +11,49 @@ def pre_check() -> bool:
 
 def render() -> gradio.Blocks:
 	with gradio.Blocks() as layout:
-		with gradio.Row():
-			with gradio.Column(scale = 4):
-				with gradio.Blocks():
-					about.render()
-				with gradio.Blocks():
-					processors.render()
-				with gradio.Blocks():
-					age_modifier_options.render()
-				with gradio.Blocks():
-					background_remover_options.render()
-				with gradio.Blocks():
-					deep_swapper_options.render()
-				with gradio.Blocks():
-					expression_restorer_options.render()
-				with gradio.Blocks():
-					face_debugger_options.render()
-				with gradio.Blocks():
-					face_editor_options.render()
-				with gradio.Blocks():
-					face_enhancer_options.render()
+		with gradio.Row(elem_id = 'facefusion-workspace'):
+			with gradio.Column(scale = 4, min_width = 290):
 				with gradio.Blocks():
 					face_swapper_options.render()
+				settings_guide.render_model_preset()
 				with gradio.Blocks():
+					processors.render()
+				with gradio.Accordion('Additional processor settings', open = False):
+					age_modifier_options.render()
+					background_remover_options.render()
+					deep_swapper_options.render()
+					expression_restorer_options.render()
+					face_debugger_options.render()
+					face_editor_options.render()
+					face_enhancer_options.render()
 					frame_colorizer_options.render()
-				with gradio.Blocks():
 					frame_enhancer_options.render()
-				with gradio.Blocks():
 					lip_syncer_options.render()
-				with gradio.Blocks():
 					voice_extractor.render()
-				with gradio.Blocks():
+				with gradio.Accordion('Performance and export settings', open = False):
 					workflow.render()
-				with gradio.Blocks():
 					execution.render()
 					execution_thread_count.render()
-				with gradio.Blocks():
 					download.render()
-				with gradio.Blocks():
 					memory.render()
-				with gradio.Blocks():
 					temp_frame.render()
-				with gradio.Blocks():
 					output_options.render()
-			with gradio.Column(scale = 4):
+			with gradio.Column(scale = 4, min_width = 275):
 				with gradio.Blocks():
 					source.render()
 				with gradio.Blocks():
 					target.render()
 				with gradio.Blocks():
 					output.render()
-				with gradio.Blocks():
-					terminal.render()
+				settings_guide.render_recovery()
 				with gradio.Blocks():
 					ui_workflow.render()
 					instant_runner.render()
 					job_runner.render()
 					job_manager.render()
-			with gradio.Column(scale = 7):
+				with gradio.Accordion('Render log', open = False):
+					terminal.render()
+			with gradio.Column(scale = 7, min_width = 350):
 				with gradio.Blocks():
 					preview.render()
 					preview_options.render()
@@ -75,14 +61,15 @@ def render() -> gradio.Blocks:
 					trim_frame.render()
 				with gradio.Blocks():
 					face_selector.render()
-				with gradio.Blocks():
+				with gradio.Accordion('Face detection and blending', open = False):
 					face_tracker.render()
-				with gradio.Blocks():
 					face_masker.render()
-				with gradio.Blocks():
 					face_detector.render()
-				with gradio.Blocks():
 					face_landmarker.render()
+				with gradio.Accordion('Help with this preview', open = False):
+					settings_guide.render_guide()
+				with gradio.Accordion('About FaceFusion', open = False):
+					about.render()
 	return layout
 
 
@@ -122,6 +109,14 @@ def listen() -> None:
 	face_landmarker.listen()
 	voice_extractor.listen()
 	workflow.listen()
+	settings_guide.listen((
+		processors, face_swapper_options, face_enhancer_options, face_detector, face_landmarker,
+		face_masker, face_selector, face_tracker, execution, execution_thread_count, memory,
+		output_options, workflow, ui_workflow, temp_frame, age_modifier_options,
+		background_remover_options, deep_swapper_options, expression_restorer_options,
+		face_debugger_options, face_editor_options, frame_colorizer_options, frame_enhancer_options,
+		lip_syncer_options, voice_extractor, download
+	))
 
 
 def run(ui : gradio.Blocks) -> None:

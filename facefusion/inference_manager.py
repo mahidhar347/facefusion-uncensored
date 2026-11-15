@@ -1,6 +1,7 @@
 import importlib
 import random
 from functools import lru_cache
+from threading import Lock
 from time import sleep, time
 from typing import List
 
@@ -20,6 +21,7 @@ INFERENCE_POOL_SET : InferencePoolSet =\
 	'cli': {},
 	'ui': {}
 }
+INFERENCE_POOL_LOCK = Lock()
 
 
 def get_inference_pool(module_name : str, model_names : List[str], model_source_set : DownloadSet) -> InferencePool:
@@ -40,9 +42,10 @@ def get_inference_pool(module_name : str, model_names : List[str], model_source_
 			if app_context == 'ui' and INFERENCE_POOL_SET.get('cli').get(inference_context):
 				INFERENCE_POOL_SET['ui'][inference_context] = INFERENCE_POOL_SET.get('cli').get(inference_context)
 
-		if not INFERENCE_POOL_SET.get(app_context).get(inference_context):
-			inference_providers = resolve_static_inference_providers(module_name, execution_device_id)
-			INFERENCE_POOL_SET[app_context][inference_context] = create_inference_pool(model_source_set, inference_providers)
+		with INFERENCE_POOL_LOCK:
+			if not INFERENCE_POOL_SET.get(app_context).get(inference_context):
+				inference_providers = resolve_static_inference_providers(module_name, execution_device_id)
+				INFERENCE_POOL_SET[app_context][inference_context] = create_inference_pool(model_source_set, inference_providers)
 
 	current_inference_context = get_inference_context(module_name, model_names, random.choice(execution_device_ids), execution_providers)
 	return INFERENCE_POOL_SET.get(app_context).get(current_inference_context)
@@ -84,7 +87,18 @@ def create_inference_session(model_path : str, inference_providers : List[Infere
 		logger.debug(translator.get('loading_model_succeeded').format(model_name = model_file_name, seconds = calculate_end_time(start_time)), __name__)
 		return inference_session
 
-	except Exception:
+	except Exception as error:
+		uses_coreml = any(
+			(provider[0] if isinstance(provider, tuple) else provider) == 'CoreMLExecutionProvider'
+			for provider in inference_providers
+		)
+		if uses_coreml:
+			logger.warn(f'CoreML could not load {model_file_name}. Retrying on CPU.', __name__)
+			logger.debug(str(error), __name__)
+			try:
+				return InferenceSession(model_path, providers = [ 'CPUExecutionProvider' ])
+			except Exception as cpu_error:
+				logger.debug(str(cpu_error), __name__)
 		logger.error(translator.get('loading_model_failed').format(model_name = model_file_name), __name__)
 		fatal_exit(1)
 
