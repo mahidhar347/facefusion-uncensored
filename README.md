@@ -2,6 +2,14 @@
 
 A public fork of [FaceFusion 3.9.2](https://github.com/facefusion/facefusion) with an updated workspace, saved settings, export checks, clearer render feedback, and Apple Silicon inference fixes. The shared interface runs locally in a browser on macOS and Windows. An optional native app wrapper is available on macOS. This fork retains FaceFusion’s upstream content checks.
 
+## Responsible use and disclaimer
+
+You are responsible for how you use this software and for any content you create, publish, or share with it. Use media you have permission to process and get informed consent from the people depicted for the intended use and any sharing. Follow applicable laws, platform rules, and software and model license terms. Clearly label manipulated media when viewers could reasonably mistake it for authentic footage.
+
+Do not use this software for deceptive impersonation, fraud, harassment, or non-consensual intimate imagery.
+
+To the extent permitted by applicable law, this fork is provided **as is**, without warranties. The maintainers of this fork disclaim liability for claims, losses, or damages arising from your use of the software or from content you create or distribute with it. This notice is subject to applicable law and the upstream software and model licenses.
+
 ## Install on macOS
 
 Install Git, Python 3.12 and FFmpeg, and make sure those commands are available in Terminal. Then run:
